@@ -1,18 +1,9 @@
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="utf-8">
-<title>Знайтись</title>
-</head>
-<body>
-
-<h3>Тицяй сюди</h3>
-<button onclick="getLocation()">Передати інфу</button>
+<button onclick="send()">Поділитись локацією</button>
 
 <script>
-function getLocation() {
+function send() {
   navigator.geolocation.getCurrentPosition(pos => {
-    fetch("https://example.com/save.php", {
+    fetch("https://YOUR-WORKER.workers.dev", {
       method: "POST",
       headers: {"Content-Type": "application/json"},
       body: JSON.stringify({
@@ -20,13 +11,7 @@ function getLocation() {
         lon: pos.coords.longitude,
         acc: pos.coords.accuracy
       })
-    });
-    alert("Координати передано");
-  }, err => {
-    alert("Доступ до геолокації відхилено");
+    }).then(() => alert("Дякую, координати передано"));
   });
 }
 </script>
-
-</body>
-</html>
