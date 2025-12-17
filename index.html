@@ -1,45 +1,58 @@
 <!DOCTYPE html>
 <html lang="uk">
 <head>
-  <meta charset="UTF-8">
-  <title>Передача геолокації</title>
+<meta charset="UTF-8">
+<title>Відправка координат</title>
 </head>
 <body>
 
-<h2>Надіслати GPS координати</h2>
-<p>Натисніть кнопку та підтвердіть доступ до геолокації.</p>
-
-<button onclick="sendLocation()">Надіслати локацію</button>
+<h2>Надіслати мої GPS координати</h2>
+<button id="sendBtn">Надіслати</button>
 
 <script>
-function sendLocation() {
+document.getElementById("sendBtn").addEventListener("click", () => {
   if (!navigator.geolocation) {
-    alert("Геолокація не підтримується");
+    alert("Геолокація не підтримується браузером.");
     return;
   }
 
   navigator.geolocation.getCurrentPosition(
     position => {
-      const data = {
-        lat: position.coords.latitude,
-        lon: position.coords.longitude,
+      const lat = position.coords.latitude;
+      const lon = position.coords.longitude;
+
+      const payload = {
+        latitude: lat,
+        longitude: lon,
         accuracy: position.coords.accuracy,
         timestamp: new Date().toISOString()
       };
 
-      fetch("https://app.hooklistener.com/w/my-first-endpoint-ph72", {
+      fetch("https://app.hooklistener.com/w/my-first-endpoint-ph72/", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data)
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(payload)
+      })
+      .then(response => {
+        if (response.ok) {
+          alert("Координати успішно надіслані!");
+        } else {
+          alert("Помилка при надсиланні.");
+        }
+      })
+      .catch(err => {
+        alert("Fetch error: " + err);
       });
 
-      alert("Геолокацію надіслано");
     },
     error => {
-      alert("Доступ до геолокації не надано");
+      alert("Не вдалося отримати координати: " + error.message);
     }
   );
-}
+
+});
 </script>
 
 </body>
