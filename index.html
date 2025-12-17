@@ -2,56 +2,47 @@
 <html lang="uk">
 <head>
 <meta charset="UTF-8">
-<title>Відправка координат</title>
+<title>Надіслати локацію</title>
 </head>
 <body>
 
-<h2>Надіслати мої GPS координати</h2>
+<h2>Надіслати мою локацію</h2>
 <button id="sendBtn">Надіслати</button>
 
 <script>
 document.getElementById("sendBtn").addEventListener("click", () => {
-  if (!navigator.geolocation) {
-    alert("Геолокація не підтримується браузером.");
-    return;
-  }
+  navigator.geolocation.getCurrentPosition(pos => {
 
-  navigator.geolocation.getCurrentPosition(
-    position => {
-      const lat = position.coords.latitude;
-      const lon = position.coords.longitude;
+    const lat = pos.coords.latitude;
+    const lon = pos.coords.longitude;
 
-      const payload = {
-        latitude: lat,
-        longitude: lon,
-        accuracy: position.coords.accuracy,
-        timestamp: new Date().toISOString()
-      };
+    const googleMaps = `https://www.google.com/maps?q=${lat},${lon}`;
+    const osm = `https://www.openstreetmap.org/?mlat=${lat}&mlon=${lon}#map=17/${lat}/${lon}`;
+    const appleMaps = `https://maps.apple.com/?ll=${lat},${lon}`;
 
-      fetch("https://app.hooklistener.com/w/my-first-endpoint-ph72/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(payload)
-      })
-      .then(response => {
-        if (response.ok) {
-          alert("Координати успішно надіслані!");
-        } else {
-          alert("Помилка при надсиланні.");
-        }
-      })
-      .catch(err => {
-        alert("Fetch error: " + err);
-      });
+    const payload = {
+      latitude: lat,
+      longitude: lon,
+      accuracy: pos.coords.accuracy,
+      maps: {
+        google: googleMaps,
+        openstreetmap: osm,
+        apple: appleMaps
+      },
+      timestamp: new Date().toISOString()
+    };
 
-    },
-    error => {
-      alert("Не вдалося отримати координати: " + error.message);
-    }
-  );
+    fetch("https://app.hooklistener.com/w/my-first-endpoint-ph72/", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
 
+    alert("Локацію відправлено");
+
+  }, err => {
+    alert("Помилка геолокації: " + err.message);
+  });
 });
 </script>
 
