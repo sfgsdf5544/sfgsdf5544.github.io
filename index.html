@@ -1,17 +1,46 @@
-<button onclick="send()">Поділитись локацією</button>
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <title>Передача геолокації</title>
+</head>
+<body>
+
+<h2>Надіслати GPS координати</h2>
+<p>Натисніть кнопку та підтвердіть доступ до геолокації.</p>
+
+<button onclick="sendLocation()">Надіслати локацію</button>
 
 <script>
-function send() {
-  navigator.geolocation.getCurrentPosition(pos => {
-    fetch("https://YOUR-WORKER.workers.dev", {
-      method: "POST",
-      headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({
-        lat: pos.coords.latitude,
-        lon: pos.coords.longitude,
-        acc: pos.coords.accuracy
-      })
-    }).then(() => alert("Дякую, координати передано"));
-  });
+function sendLocation() {
+  if (!navigator.geolocation) {
+    alert("Геолокація не підтримується");
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(
+    position => {
+      const data = {
+        lat: position.coords.latitude,
+        lon: position.coords.longitude,
+        accuracy: position.coords.accuracy,
+        timestamp: new Date().toISOString()
+      };
+
+      fetch("https://app.hooklistener.com/w/my-first-endpoint-ph72", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      });
+
+      alert("Геолокацію надіслано");
+    },
+    error => {
+      alert("Доступ до геолокації не надано");
+    }
+  );
 }
 </script>
+
+</body>
+</html>
